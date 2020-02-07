@@ -15,6 +15,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 
 namespace DatingApp
 {
@@ -53,6 +56,22 @@ namespace DatingApp
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                 app.UseExceptionHandler(builder => {
+                     builder.Run(async context =>  {
+                         context.Response.StatusCode  = (int) HttpStatusCode.InternalServerError;
+
+                         var error = context.Features.Get<IExceptionHandlerFeature>();
+
+                         if(error!=null){
+                           await  context.Response.WriteAsync("Exception occured in API");
+                         }
+
+                     });
+                 });
+              
             }
 
             // app.UseHttpsRedirection();
